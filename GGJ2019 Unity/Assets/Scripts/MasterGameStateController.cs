@@ -25,6 +25,17 @@ public class MasterGameStateController : Singleton<MasterGameStateController> {
 
     public void Start()
     {
+        Physics.IgnoreLayerCollision(0, 9);
+        Physics.IgnoreLayerCollision(1, 9);
+
+        Physics.IgnoreLayerCollision(2, 9);
+        Physics.IgnoreLayerCollision(3, 9);
+        Physics.IgnoreLayerCollision(4, 9);
+        Physics.IgnoreLayerCollision(5, 9);
+        Physics.IgnoreLayerCollision(6, 9);
+        Physics.IgnoreLayerCollision(7, 9);
+        Physics.IgnoreLayerCollision(8, 9);
+
         _StateCtrl = StateMachine<States>.Initialize(this);
         _StateCtrl.ChangeState(States.Cleanup);
     }

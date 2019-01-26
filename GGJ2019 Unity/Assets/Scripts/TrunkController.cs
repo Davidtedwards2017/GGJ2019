@@ -46,9 +46,18 @@ public class TrunkController : MonoBehaviour
         _StateCtrl.ChangeState(States.Init);
     }
 
-    void FixedUpdate()
+    void Update()
     {
-
+        //RaycastHit[] allHit = Physics.RaycastAll(Camera.main.ScreenPointToRay(Input.mousePosition));
+        //foreach (RaycastHit hit in allHit)
+        //{
+        //    //Debug.Log(hit.collider.gameObject.name);
+        //    if (hit.collider.gameObject.name == "Cube A")
+        //    {
+        //        //do something here
+        //        break;
+        //    }
+        //}
     }
 
     private void UpdateSteering()
