@@ -17,7 +17,9 @@ public class TrunkController : MonoBehaviour
         Winning,
     }
 
-   
+    public float DamagePerHit = 1.0f;
+    public MinMaxEventFloat Health = new MinMaxEventFloat(0, 100, 100);
+       
     public float MinEnergy = 0;
     public float MaxEnergy = 100;
     public float EnergyDecayRate = 2.5f;
@@ -38,7 +40,13 @@ public class TrunkController : MonoBehaviour
 
     public Vector3 currentVelocity;
 
+    public SteeringWheel Wheel;
+
     private float _CurrentSteering = 0.5f;
+
+    private TrackArea _TrackArea;
+
+    public GameObject WarningLight;
 
     public void Start()
     {
@@ -48,46 +56,64 @@ public class TrunkController : MonoBehaviour
 
     void Update()
     {
-        //RaycastHit[] allHit = Physics.RaycastAll(Camera.main.ScreenPointToRay(Input.mousePosition));
-        //foreach (RaycastHit hit in allHit)
-        //{
-        //    //Debug.Log(hit.collider.gameObject.name);
-        //    if (hit.collider.gameObject.name == "Cube A")
-        //    {
-        //        //do something here
-        //        break;
-        //    }
-        //}
+        Debug.DrawLine(transform.position, transform.position + (_SteeringDirection * 100) , Color.red);
+
+        //if (_TrackArea == null)
+        WarningLight.SetActive(_TrackArea == null);
+    }
+
+    public void OnEnterTrackArea(TrackArea track)
+    {
+        if(_TrackArea != track)
+        {
+            _TrackArea = track;
+        }
+        Debug.Log("Trunk Enter track area " + track.gameObject.name);
+    }
+
+    public void OnLeaveTrackArea(TrackArea track)
+    {
+        if(_TrackArea == track)
+        {
+            _TrackArea = null;
+        }
+        Debug.Log("Trunk left track area " + track.gameObject.name);
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        var asteroid = collision.gameObject.GetComponent<Asteroid>();
+        if(asteroid != null)
+        {
+            HitSomthing(asteroid.Damage);
+        }
+    
+        //collision.gameObject.SendMessage("HitAsteroid", SendMessageOptions.DontRequireReceiver);
+    }
+
+    public void HitSomthing(float dmgAmount)
+    {
+        Debug.Log("Took damage " + dmgAmount);
+        Health.value -= dmgAmount;
     }
 
     private void UpdateSteering()
     {
-        float steering = Input.GetAxis("Horizontal");
-        if (steering > 0)
-        {
-            _CurrentSteering = Mathf.Lerp(_CurrentSteering, 1, Time.deltaTime);
-        }
-        else if (steering < 0)
-        {
-            _CurrentSteering = Mathf.Lerp(_CurrentSteering, 0, Time.deltaTime);
-        }
-
-        _SteeringDirection = Vector3.Lerp(Steer_FullLeft, Steer_FullRight, _CurrentSteering) * SteeringSpeed * Time.deltaTime;
+        _CurrentSteering = Wheel.SteeringAmount.value;
+        _SteeringDirection = Quaternion.AngleAxis(_CurrentSteering * SteeringSpeed, Vector3.up) * transform.right;
+        transform.rotation = Quaternion.Euler(0, -90, 0) * Quaternion.LookRotation(_SteeringDirection);    
     }
 
     private void UpdateMovement()
     {
-        currentVelocity = (new Vector3 (1,0,0) + _SteeringDirection).normalized * _Speed * Time.deltaTime;
-
+        currentVelocity = (transform.right).normalized * _Speed * Time.deltaTime;
         _RigidBody.AddForce(currentVelocity);
-        transform.rotation = Quaternion.Euler(0, -90, 0) * Quaternion.LookRotation(currentVelocity);
     }
 
     public void ReachDestination()
     {
         _StateCtrl.ChangeState(States.Winning);
     }
-
     
     private void Init_Enter()
     {
@@ -98,7 +124,21 @@ public class TrunkController : MonoBehaviour
             return;
         }
 
+        Health.OnValueChangeTo += OnHealthValueChangeTo;
+        Health.OnValueMin += OnHealthDepleted;
+        Wheel.SteeringAmount.OnValueChanged += UpdateSteering;
+
         _RigidBody = GetComponent<Rigidbody>();
+    }
+
+    private void OnHealthValueChangeTo(float value)
+    {
+
+    }
+
+    private void OnHealthDepleted()
+    {
+        _StateCtrl.ChangeState(States.Crashing);
     }
 
     public void StartEngines()
@@ -113,7 +153,7 @@ public class TrunkController : MonoBehaviour
 
     private void Coasting_FixedUpdate()
     {
-        UpdateSteering();
+        //UpdateSteering();
         UpdateMovement();
     }
 
@@ -129,7 +169,6 @@ public class TrunkController : MonoBehaviour
 
     private void Steering_FixedUpdate()
     {
-        UpdateSteering();
         UpdateMovement();
     }
 
@@ -164,8 +203,4 @@ public class TrunkController : MonoBehaviour
         Debug.Log("Player Winning");
         MasterGameStateController.Instance.PlayerWon();
     }
-
-
-
-
 }

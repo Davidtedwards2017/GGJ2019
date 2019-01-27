@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using MonsterLove.StateMachine;
+using Utilites;
 
 public class MasterGameStateController : Singleton<MasterGameStateController> {
 
@@ -16,6 +17,24 @@ public class MasterGameStateController : Singleton<MasterGameStateController> {
         Cleanup,
     }
 
+    public enum SpawnGroupDifficulty
+    {
+        Easy,
+        Medium,
+        Hard,
+        None,
+    }
+
+    public List<GameObject> EasyGroups;
+    public FilteredRandom<GameObject> EasyGroupRnd;
+
+    public List<GameObject> MediumGroups;
+    public FilteredRandom<GameObject> MediumGroupRnd;
+    
+    public List<GameObject> HardGroups;
+    public FilteredRandom<GameObject> HardGroupRnd;
+
+
     private StateMachine<States> _StateCtrl;
 
     public GameObject PlayerPrefab;
@@ -25,19 +44,39 @@ public class MasterGameStateController : Singleton<MasterGameStateController> {
 
     public void Start()
     {
-        Physics.IgnoreLayerCollision(0, 9);
-        Physics.IgnoreLayerCollision(1, 9);
+        EasyGroupRnd = new FilteredRandom<GameObject>(EasyGroups, 3);
+        MediumGroupRnd = new FilteredRandom<GameObject>(MediumGroups, 3);
+        HardGroupRnd = new FilteredRandom<GameObject>(HardGroups, 3);
 
-        Physics.IgnoreLayerCollision(2, 9);
-        Physics.IgnoreLayerCollision(3, 9);
-        Physics.IgnoreLayerCollision(4, 9);
-        Physics.IgnoreLayerCollision(5, 9);
-        Physics.IgnoreLayerCollision(6, 9);
-        Physics.IgnoreLayerCollision(7, 9);
-        Physics.IgnoreLayerCollision(8, 9);
+        //Physics.IgnoreLayerCollision(0, 9);
+        //Physics.IgnoreLayerCollision(1, 9);
+        //
+        //Physics.IgnoreLayerCollision(2, 9);
+        //Physics.IgnoreLayerCollision(3, 9);
+        //Physics.IgnoreLayerCollision(4, 9);
+        //Physics.IgnoreLayerCollision(5, 9);
+        //Physics.IgnoreLayerCollision(6, 9);
+        //Physics.IgnoreLayerCollision(7, 9);
+        //Physics.IgnoreLayerCollision(8, 9);
 
         _StateCtrl = StateMachine<States>.Initialize(this);
         _StateCtrl.ChangeState(States.Cleanup);
+    }
+
+    public GameObject GetNextAsteroidGroup(SpawnGroupDifficulty difficulty)
+    {
+        switch (difficulty)
+        {
+            case SpawnGroupDifficulty.Hard:
+                return EasyGroupRnd.GetNextRandom();
+            case SpawnGroupDifficulty.Medium:
+                return MediumGroupRnd.GetNextRandom();
+            case SpawnGroupDifficulty.Easy:
+                return HardGroupRnd.GetNextRandom();
+        }
+
+        return null;
+
     }
 
     private void SpawnPlayer()

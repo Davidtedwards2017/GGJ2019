@@ -1,38 +1,134 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using MonsterLove.StateMachine;
 
 public class ArmController : MonoBehaviour {
+    private enum State
+    {
+        Idle,
+        HoveringOver,
+        Interacting
+    }
 
     public Vector3 MouseWorldPos;
-    public float DistanceFromCamera = 30;
-    void Update()
+    private StateMachine<State> _StateCtrl;
+
+    public MeshRenderer Renderer;
+    Color m_OriginalColor;
+    Color m_HoveringColor = Color.red;
+    Color m_InteractingColor = Color.green;
+
+    public InteractableCabObject _HoverTarget;
+    public InteractableCabObject _InteractingTarget;
+
+    private void Start()
     {
-        Vector3 world;//= Camera.main.ScreenToWorldPoint(Input.mousePosition + new Vector3 (0, 0, DistanceFromCamera));
-        
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
+        m_OriginalColor = Renderer.material.color;
 
-        if(Physics.Raycast(ray, out hit))
-        {
-            world = hit.point;
-        }
-        else
-        {
-            world = Camera.main.ScreenToWorldPoint(Input.mousePosition + new Vector3(0, 0, DistanceFromCamera));
-        }
-
-        transform.position = world;
-
-        //RaycastHit[] allHit = Physics.RaycastAll(Camera.main.ScreenPointToRay(Input.mousePosition));
-        //foreach (RaycastHit hit in allHit)
-        //{
-        //    Debug.Log(hit.collider.gameObject.name);
-        //    if (hit.collider.gameObject.name == "Cube A")
-        //    {
-        //        //do something here
-        //        break;
-        //    }
-        //}
+        _StateCtrl = StateMachine<State>.Initialize(this);
+        _StateCtrl.ChangeState(State.Idle);
     }
+
+    private void Update()
+    {
+        RaycastHit[] allHit = Physics.RaycastAll(Camera.main.ScreenPointToRay(Input.mousePosition));
+        foreach (RaycastHit hit in allHit)
+        {
+            _HoverTarget = hit.collider.gameObject.GetComponent<InteractableCabObject>();
+            if (_HoverTarget != null)
+            {
+                //do something here
+                break;
+            }
+        }
+    }
+
+
+    private void UpdateArmPosition(Vector3 position)
+    {
+        transform.position = position;
+    }
+
+    private void Idle_Enter()
+    {
+        Debug.Log("Arm Idle");
+    }
+
+    private void Idle_Update()
+    {
+        if(_HoverTarget != null)
+        {
+            _StateCtrl.ChangeState(State.HoveringOver);
+        }
+    }
+    
+    private void UpdateArmToMousePosition()
+    {
+        UpdateArmPosition(GameInfo.Instance.MouseWorldPosition);
+    }
+
+    private void Idle_LateUpdate()
+    {
+        UpdateArmToMousePosition();
+    }
+
+
+    private void HoveringOver_Enter()
+    {
+        Debug.Log("Arm hovering");
+        Renderer.material.color = m_HoveringColor;
+    }
+
+    private void HoveringOver_Update()
+    {
+        if (_HoverTarget == null)
+        {
+            _StateCtrl.ChangeState(State.Idle);
+        }
+        else if(Input.GetMouseButtonDown(0))
+        {
+            _StateCtrl.ChangeState(State.Interacting);
+        }
+    }
+
+    private void HoveringOver_LateUpdate()
+    {
+        UpdateArmToMousePosition();
+    }
+
+    private void HoveringOver_Exit()
+    {
+        Renderer.material.color = m_OriginalColor;
+    }
+
+    private void Interacting_Enter()
+    {
+        _InteractingTarget = _HoverTarget;
+        Debug.Log("Arm interacting with "  + _InteractingTarget.gameObject.name);
+
+        _InteractingTarget.StartInteracting();
+        Renderer.material.color = m_InteractingColor;
+    }
+
+    private void Interacting_Update()
+    {
+        if (Input.GetMouseButtonUp(0))
+        {
+            _StateCtrl.ChangeState(State.HoveringOver);
+        }
+    }
+
+    private void Interacting_LateUpdate()
+    {
+        UpdateArmPosition(_InteractingTarget.InteractionUpdate());
+    }
+
+    private void Interacting_Exit()
+    {
+        _InteractingTarget.StopInteracting();
+        _InteractingTarget = null;
+        Renderer.material.color = m_OriginalColor;
+    }
+
 }

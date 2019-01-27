@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InteractableCabObject : MonoBehaviour {
+public abstract class InteractableCabObject : MonoBehaviour {
+    
+    public Transform Anchor;
 
     //When the mouse hovers over the GameObject, it turns to this color (red)
     Color m_MouseOverColor = Color.red;
@@ -15,21 +17,23 @@ public class InteractableCabObject : MonoBehaviour {
 
     void Start()
     {
-        //Fetch the mesh renderer component from the GameObject
-        m_Renderer = GetComponent<MeshRenderer>();
-        //Fetch the original color of the GameObject
-        m_OriginalColor = m_Renderer.material.color;
+
     }
 
-    void OnMouseOver()
+    public virtual void StartInteracting()
     {
-        // Change the color of the GameObject to red when the mouse is over GameObject
-        m_Renderer.material.color = m_MouseOverColor;
+
     }
 
-    void OnMouseExit()
+    public virtual void StopInteracting()
     {
-        // Reset the color of the GameObject back to normal
-        m_Renderer.material.color = m_OriginalColor;
+
     }
+
+    public virtual Vector3 InteractionUpdate()
+    {
+        return Anchor.position;
+    }
+
+
 }
