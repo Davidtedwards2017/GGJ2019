@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using MonsterLove.StateMachine;
+using Utilites;
 
 public class ArmController : MonoBehaviour {
     private enum State
@@ -13,6 +14,14 @@ public class ArmController : MonoBehaviour {
 
     public Vector3 MouseWorldPos;
     private StateMachine<State> _StateCtrl;
+
+    public GameObject IdleVisual;
+    public GameObject HoveringVisual;
+    public GameObject HurtVisual;
+    public GameObject SteeringVisual;
+    public GameObject PushButtonVisual;
+
+    public List<SoundEffectData> IdleBanter;
 
     public MeshRenderer Renderer;
     Color m_OriginalColor;
@@ -52,12 +61,27 @@ public class ArmController : MonoBehaviour {
 
     private void Idle_Enter()
     {
+        IdleVisual.SetActive(true);
         Debug.Log("Arm Idle");
     }
 
+    private float MinIdlePanterInvokeTime = 7.0f;
+    private float TimeTillIdleBanter = -1;
+
     private void Idle_Update()
     {
-        if(_HoverTarget != null)
+        if(TimeTillIdleBanter <= 0)
+        {
+            MasterGameStateController.Instance.Player.TryToBanter(IdleBanter.PickRandom());
+            TimeTillIdleBanter = MinIdlePanterInvokeTime.RandomOffset(MinIdlePanterInvokeTime / 2);
+        }
+        else
+        {
+            TimeTillIdleBanter -= Time.deltaTime;
+        }
+
+
+        if (_HoverTarget != null)
         {
             _StateCtrl.ChangeState(State.HoveringOver);
         }
@@ -73,10 +97,15 @@ public class ArmController : MonoBehaviour {
         UpdateArmToMousePosition();
     }
 
-
+    private void Idle_Exit()
+    {
+        IdleVisual.SetActive(false);
+    }
+    
     private void HoveringOver_Enter()
     {
         Debug.Log("Arm hovering");
+        HoveringVisual.SetActive(true);
         Renderer.material.color = m_HoveringColor;
     }
 
@@ -99,6 +128,7 @@ public class ArmController : MonoBehaviour {
 
     private void HoveringOver_Exit()
     {
+        HoveringVisual.SetActive(false);
         Renderer.material.color = m_OriginalColor;
     }
 

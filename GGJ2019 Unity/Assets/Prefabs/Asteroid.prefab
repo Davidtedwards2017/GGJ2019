@@ -171,7 +171,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BlowupEffect: {fileID: 11400000, guid: ec0862f8357761040a9cf7d73b405654, type: 2}
-  Damage: 1
+  Damage: 10
   SizeOffset: 1
 --- !u!135 &135251221706325852
 SphereCollider:

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Utilites;
 
 public class SteeringWheel : InteractableCabObject
 {    
@@ -16,6 +17,11 @@ public class SteeringWheel : InteractableCabObject
 
     private Rigidbody _Rigidbody;
 
+    public List<SoundEffectData> TenticalGrasp;
+    public List<SoundEffectData> TenticalRelease;
+
+    public List<SoundEffectData> BanterSfx;
+
     private void Start()
     {
         _Rigidbody = GetComponent<Rigidbody>();
@@ -23,16 +29,22 @@ public class SteeringWheel : InteractableCabObject
 
     public override void StartInteracting()
     {
+        TenticalGrasp.PickRandom().PlaySfx();
+
+        MasterGameStateController.Instance.Player.TryToBanter(BanterSfx.PickRandom());
+
         _LastMouseWorldPosition = GameInfo.Instance.MouseWorldPosition;
+        ArmCtrl.SteeringVisual.SetActive(true);
     }
 
     public override void StopInteracting()
     {
-
+        TenticalRelease.PickRandom().PlaySfx();
+        ArmCtrl.SteeringVisual.SetActive(false);
     }
 
     public override Vector3 InteractionUpdate()
-    {
+    {   
         Vel = GameInfo.Instance.MouseWorldPosition - _LastMouseWorldPosition;
         Debug.DrawLine(_LastMouseWorldPosition, GameInfo.Instance.MouseWorldPosition);
         

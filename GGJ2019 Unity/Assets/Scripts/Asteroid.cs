@@ -5,7 +5,7 @@ using UnityEngine;
 public class Asteroid : MonoBehaviour {
 
     public EffectData BlowupEffect;
-    public float Damage = 1.0f;
+    public float Damage { get { return 10.0f; } }
     public float SizeOffset;
 
     private void Start()

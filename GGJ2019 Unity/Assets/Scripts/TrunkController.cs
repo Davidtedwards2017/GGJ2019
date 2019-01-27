@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using MonsterLove.StateMachine;
+using Utilites;
 
 public class TrunkController : MonoBehaviour
 {
@@ -16,6 +17,8 @@ public class TrunkController : MonoBehaviour
         Crashing,
         Winning,
     }
+
+    public List<SoundEffectData> RockHitSfx;
 
     public float DamagePerHit = 1.0f;
     public MinMaxEventFloat Health = new MinMaxEventFloat(0, 100, 100);
@@ -46,7 +49,13 @@ public class TrunkController : MonoBehaviour
 
     private TrackArea _TrackArea;
 
-    public GameObject WarningLight;
+    public float OutOfBoundsDamagePerSecond = 5.0f;
+
+    public List<SoundEffectData> TakeDamageVoices;
+
+    public Transform BanterTransform;
+
+
 
     public void Start()
     {
@@ -59,7 +68,10 @@ public class TrunkController : MonoBehaviour
         Debug.DrawLine(transform.position, transform.position + (_SteeringDirection * 100) , Color.red);
 
         //if (_TrackArea == null)
-        WarningLight.SetActive(_TrackArea == null);
+        if(_TrackArea == null)
+        {
+            Health.value -= OutOfBoundsDamagePerSecond * Time.deltaTime;
+        }
     }
 
     public void OnEnterTrackArea(TrackArea track)
@@ -69,6 +81,28 @@ public class TrunkController : MonoBehaviour
             _TrackArea = track;
         }
         Debug.Log("Trunk Enter track area " + track.gameObject.name);
+    }
+
+
+
+    public void TryToBanter(SoundEffectData sfx, bool force = false)
+    {
+        if(force)
+        {
+            if(BanterTransform.childCount <= 0)
+            {
+                foreach(Transform child in BanterTransform)
+                {
+                    Destroy(child.gameObject);
+                }
+            }
+
+            sfx.PlaySfx().transform.SetParent(BanterTransform);
+        }
+        else if(BanterTransform.childCount == 0)
+        {
+            sfx.PlaySfx().transform.SetParent(BanterTransform);
+        }
     }
 
     public void OnLeaveTrackArea(TrackArea track)
@@ -85,6 +119,8 @@ public class TrunkController : MonoBehaviour
         var asteroid = collision.gameObject.GetComponent<Asteroid>();
         if(asteroid != null)
         {
+            RockHitSfx.PickRandom().PlaySfx();
+            TryToBanter(TakeDamageVoices.PickRandom(), true);
             HitSomthing(asteroid.Damage);
         }
     

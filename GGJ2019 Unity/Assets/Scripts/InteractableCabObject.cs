@@ -15,10 +15,7 @@ public abstract class InteractableCabObject : MonoBehaviour {
     //Get the GameObject’s mesh renderer to access the GameObject’s material and color
     MeshRenderer m_Renderer;
 
-    void Start()
-    {
-
-    }
+    public ArmController ArmCtrl;
 
     public virtual void StartInteracting()
     {

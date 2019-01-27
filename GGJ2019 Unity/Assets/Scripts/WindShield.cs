@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using MonsterLove.StateMachine;
+using Utilites;
+using DG.Tweening;
 
 public class WindShield : MonoBehaviour {
 
@@ -14,6 +16,9 @@ public class WindShield : MonoBehaviour {
         OneWipe,
         TwoWipe,
     }
+
+    public SoundEffectData Buzzing;
+    public List<SoundEffectData> BugSplats;
 
     public GameObject SplatVisual;
     public GameObject OneWipeVisual;
@@ -49,7 +54,11 @@ public class WindShield : MonoBehaviour {
     private IEnumerator BugIncomming_Enter()
     {
         Debug.Log("Bug incomming");
+        var audio = Buzzing.PlaySfx();
+        audio.volume = 0;
+        audio.DOFade(1, BugIncommingTime);
         yield return new WaitForSeconds(BugIncommingTime);
+        Destroy(audio.gameObject);
         _StateCtrl.ChangeState(State.BugSplat);
     }
 
@@ -73,6 +82,7 @@ public class WindShield : MonoBehaviour {
     private void BugSplat_Enter()
     {
         SplatVisual.SetActive(true);
+        BugSplats.PickRandom().PlaySfx();
     }
 
     private void BugSplat_Exit()
