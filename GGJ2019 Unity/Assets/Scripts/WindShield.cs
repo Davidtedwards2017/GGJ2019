@@ -4,6 +4,8 @@ using UnityEngine;
 using MonsterLove.StateMachine;
 using Utilites;
 using DG.Tweening;
+using System.Linq;
+
 
 public class WindShield : MonoBehaviour {
 
@@ -26,9 +28,14 @@ public class WindShield : MonoBehaviour {
 
     public float BugIncommingTime = 1.0f;
 
+
     public float MinTimeTillNextBug = 3.0f;
     public float MaxTimeTillNextBug = 10.0f;
 
+
+    public GameObject Bug;
+    public Transform BugSpawnPoint;
+    public Transform BugSplatPoint;
 
     private StateMachine<State> _StateCtrl;
 
@@ -36,8 +43,21 @@ public class WindShield : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         _StateCtrl = StateMachine<State>.Initialize(this);
-        _StateCtrl.ChangeState(State.Clean);
-	}
+        SetBugsActive(false);
+
+    }
+
+    public void SetBugsActive(bool active)
+    {
+        if(active)
+        {
+            _StateCtrl.ChangeState(State.Clean);
+        }
+        else
+        {
+            _StateCtrl.ChangeState(State.Disabled);
+        }
+    }
 
     private IEnumerator Clean_Enter()
     {
@@ -47,17 +67,35 @@ public class WindShield : MonoBehaviour {
 
         float timeTillNextBug = Random.Range(MinTimeTillNextBug, MaxTimeTillNextBug);
         yield return new WaitForSeconds(timeTillNextBug);
+               
 
         _StateCtrl.ChangeState(State.BugIncomming);
     }
-    
+
+    public Ease BugFlightEase;
+
     private IEnumerator BugIncomming_Enter()
     {
         Debug.Log("Bug incomming");
         var audio = Buzzing.PlaySfx();
-        audio.volume = 0;
-        audio.DOFade(1, BugIncommingTime);
-        yield return new WaitForSeconds(BugIncommingTime);
+        if(audio != null)
+        {
+            audio.volume = 0;
+            audio.DOFade(1, BugIncommingTime);
+        }
+
+        Bug.SetLocalPosition(BugSpawnPoint.localPosition);
+        Bug.SetActive(true);
+
+        yield return Bug.transform.DOLocalMove(BugSplatPoint.localPosition, BugIncommingTime)
+            .SetEase(BugFlightEase)
+            //BugTravelPath.Select(s => s.position).ToArray(), BugIncommingTime)
+            //.SetLookAt(transform)
+            .WaitForCompletion();
+
+        Bug.SetActive(false);
+
+        //yield return new WaitForSeconds(BugIncommingTime);
         Destroy(audio.gameObject);
         _StateCtrl.ChangeState(State.BugSplat);
     }

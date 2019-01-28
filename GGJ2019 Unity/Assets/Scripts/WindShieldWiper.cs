@@ -30,6 +30,8 @@ public class WindShieldWiper : InteractableCabObject
 
         WiperCooldown = WipeDuration;
 
+        IdleVisual.SetActive(false);
+
         StartCoroutine(Sequence());
     }
 
@@ -43,6 +45,8 @@ public class WindShieldWiper : InteractableCabObject
 
     public override void StopInteracting()
     {
+        IdleVisual.SetActive(true);
+
         ArmCtrl.PushButtonVisual.SetActive(false);
     }
 

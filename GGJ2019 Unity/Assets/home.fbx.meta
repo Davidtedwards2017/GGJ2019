@@ -1,0 +1,319 @@
+fileFormatVersion: 2
+guid: 0f936af0ef223f1408f26288de657f2c
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: Alien_01:goodSphere01
+    100002: Alien_01:Hula_Alien
+    100004: Alien_01:pCube11
+    100006: bushes
+    100008: Dome
+    100010: door
+    100012: Front_glassShine
+    100014: full_house
+    100016: goodSphere01
+    100018: goodSphere01 1
+    100020: goodSphere01 2
+    100022: goodSphere02
+    100024: goodSphere03
+    100026: goodSphere04
+    100028: goodSphere05
+    100030: goodSphere06
+    100032: goodSphere07
+    100034: goodSphere08
+    100036: goodSphere09
+    100038: ground_orbit
+    100040: group1
+    100042: //RootNode
+    100044: house
+    100046: Hula_Alien
+    100048: Hula_Alien1
+    100050: Inner_airLock
+    100052: inner_dome
+    100054: Inner_step
+    100056: inner_tube
+    100058: mirror
+    100060: Outer_airLock
+    100062: outer_dome
+    100064: outer_step
+    100066: outer_tube
+    100068: pCube11
+    100070: pCube11 1
+    100072: rear_stalk
+    100074: Rear_view
+    100076: Stering_Colomn
+    100078: Stering_Dashboard
+    100080: Top_glassShine
+    100082: tree
+    100084: tree 1
+    100086: tree2
+    100088: tree_foliage
+    100090: tree_foliage2
+    100092: tube
+    100094: Window4
+    100096: Window5
+    100098: Window6
+    100100: Window7
+    100102: Window8
+    100104: Window9
+    100106: Wiper_Button
+    100108: Wiper_Button1
+    400000: Alien_01:goodSphere01
+    400002: Alien_01:Hula_Alien
+    400004: Alien_01:pCube11
+    400006: bushes
+    400008: Dome
+    400010: door
+    400012: Front_glassShine
+    400014: full_house
+    400016: goodSphere01
+    400018: goodSphere01 1
+    400020: goodSphere01 2
+    400022: goodSphere02
+    400024: goodSphere03
+    400026: goodSphere04
+    400028: goodSphere05
+    400030: goodSphere06
+    400032: goodSphere07
+    400034: goodSphere08
+    400036: goodSphere09
+    400038: ground_orbit
+    400040: group1
+    400042: //RootNode
+    400044: house
+    400046: Hula_Alien
+    400048: Hula_Alien1
+    400050: Inner_airLock
+    400052: inner_dome
+    400054: Inner_step
+    400056: inner_tube
+    400058: mirror
+    400060: Outer_airLock
+    400062: outer_dome
+    400064: outer_step
+    400066: outer_tube
+    400068: pCube11
+    400070: pCube11 1
+    400072: rear_stalk
+    400074: Rear_view
+    400076: Stering_Colomn
+    400078: Stering_Dashboard
+    400080: Top_glassShine
+    400082: tree
+    400084: tree 1
+    400086: tree2
+    400088: tree_foliage
+    400090: tree_foliage2
+    400092: tube
+    400094: Window4
+    400096: Window5
+    400098: Window6
+    400100: Window7
+    400102: Window8
+    400104: Window9
+    400106: Wiper_Button
+    400108: Wiper_Button1
+    2100000: DomeTrans
+    2100002: Tree01
+    2100004: navyBlue1
+    2100006: orange02
+    2100008: orange01
+    2100010: lambert1
+    2100012: navyBlue
+    2100014: Grass01
+    2100016: navyBlue5
+    2100018: DiceWhite4
+    2100020: Alien_01_Pink01
+    2100022: Alien_01_navyBlue
+    2100024: Alien_01_DiceWhite1
+    2100026: Alien_01_Pink05
+    2100028: Alien_01_navyBlue1
+    2300000: Alien_01:goodSphere01
+    2300002: Alien_01:pCube11
+    2300004: door
+    2300006: goodSphere01
+    2300008: goodSphere01 1
+    2300010: goodSphere01 2
+    2300012: goodSphere02
+    2300014: goodSphere03
+    2300016: goodSphere04
+    2300018: goodSphere05
+    2300020: goodSphere06
+    2300022: goodSphere07
+    2300024: goodSphere08
+    2300026: goodSphere09
+    2300028: ground_orbit
+    2300030: house
+    2300032: Inner_airLock
+    2300034: inner_dome
+    2300036: Inner_step
+    2300038: inner_tube
+    2300040: mirror
+    2300042: Outer_airLock
+    2300044: outer_dome
+    2300046: outer_step
+    2300048: outer_tube
+    2300050: pCube11
+    2300052: pCube11 1
+    2300054: rear_stalk
+    2300056: tree 1
+    2300058: tree2
+    2300060: Window4
+    2300062: Window5
+    2300064: Window6
+    2300066: Window7
+    2300068: Window8
+    2300070: Window9
+    3300000: Alien_01:goodSphere01
+    3300002: Alien_01:pCube11
+    3300004: door
+    3300006: goodSphere01
+    3300008: goodSphere01 1
+    3300010: goodSphere01 2
+    3300012: goodSphere02
+    3300014: goodSphere03
+    3300016: goodSphere04
+    3300018: goodSphere05
+    3300020: goodSphere06
+    3300022: goodSphere07
+    3300024: goodSphere08
+    3300026: goodSphere09
+    3300028: ground_orbit
+    3300030: house
+    3300032: Inner_airLock
+    3300034: inner_dome
+    3300036: Inner_step
+    3300038: inner_tube
+    3300040: mirror
+    3300042: Outer_airLock
+    3300044: outer_dome
+    3300046: outer_step
+    3300048: outer_tube
+    3300050: pCube11
+    3300052: pCube11 1
+    3300054: rear_stalk
+    3300056: tree 1
+    3300058: tree2
+    3300060: Window4
+    3300062: Window5
+    3300064: Window6
+    3300066: Window7
+    3300068: Window8
+    3300070: Window9
+    4300000: Window9
+    4300002: Window8
+    4300004: Window5
+    4300006: Window7
+    4300008: Window4
+    4300010: door
+    4300012: house
+    4300014: Window6
+    4300016: inner_dome
+    4300018: outer_dome
+    4300020: ground_orbit
+    4300022: Outer_airLock
+    4300024: Inner_airLock
+    4300026: inner_tube
+    4300028: outer_tube
+    4300030: outer_step
+    4300032: Inner_step
+    4300034: goodSphere06
+    4300036: goodSphere07
+    4300038: goodSphere08
+    4300040: goodSphere03
+    4300042: goodSphere02
+    4300044: goodSphere01
+    4300046: goodSphere04
+    4300048: goodSphere09
+    4300050: goodSphere05
+    4300052: tree2
+    4300054: tree
+    4300056: mirror
+    4300058: rear_stalk
+    4300060: goodSphere01
+    4300062: pCube11
+    4300064: Alien_01:goodSphere01
+    4300066: Alien_01:pCube11
+    4300068: goodSphere01
+    4300070: pCube11
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

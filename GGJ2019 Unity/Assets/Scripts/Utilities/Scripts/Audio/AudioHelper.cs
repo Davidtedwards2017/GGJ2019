@@ -13,6 +13,8 @@ namespace Utilites
 
         public static AudioSource PlaySfx(this SoundEffectData data, bool looping = false, float volume = 1)
         {
+            if (MasterGameStateController.Instance.DisableNewAudio) return null;
+
             if (data.Clip != null)
             {
                 return PlaySfx(data.Clip, data.Volume * volume, looping);

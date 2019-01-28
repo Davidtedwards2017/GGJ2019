@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using MonsterLove.StateMachine;
 using Utilites;
+using DG.Tweening;
+using System.Linq;
 
 public class TrunkController : MonoBehaviour
 {
@@ -11,9 +13,9 @@ public class TrunkController : MonoBehaviour
         Init,
         WaitingToStart,
         Coasting,
-        Steering,
-        RechargingEnergy,
-        WippingWindShield,
+        //Steering,
+        //RechargingEnergy,
+        //WippingWindShield,
         Crashing,
         Winning,
     }
@@ -32,6 +34,7 @@ public class TrunkController : MonoBehaviour
 
     public Vector3 _SteeringDirection;
     public float SteeringSpeed = 0.5f;
+    public float MaxTurningAngle = 20.0f;
 
     private StateMachine<States> _StateCtrl;
 
@@ -55,10 +58,16 @@ public class TrunkController : MonoBehaviour
 
     public Transform BanterTransform;
 
+    public ArmController Arm;
+
+    public SoundEffectData Ambiant;
+    public WindShield WindShield;
+
 
 
     public void Start()
     {
+        Ambiant.PlaySfx(true).transform.SetParent(transform);
         _StateCtrl = StateMachine<States>.Initialize(this);
         _StateCtrl.ChangeState(States.Init);
     }
@@ -66,12 +75,6 @@ public class TrunkController : MonoBehaviour
     void Update()
     {
         Debug.DrawLine(transform.position, transform.position + (_SteeringDirection * 100) , Color.red);
-
-        //if (_TrackArea == null)
-        if(_TrackArea == null)
-        {
-            Health.value -= OutOfBoundsDamagePerSecond * Time.deltaTime;
-        }
     }
 
     public void OnEnterTrackArea(TrackArea track)
@@ -131,23 +134,29 @@ public class TrunkController : MonoBehaviour
     {
         Debug.Log("Took damage " + dmgAmount);
         Health.value -= dmgAmount;
+        Arm.HitRock();
     }
 
     private void UpdateSteering()
     {
         _CurrentSteering = Wheel.SteeringAmount.value;
-        _SteeringDirection = Quaternion.AngleAxis(_CurrentSteering * SteeringSpeed, Vector3.up) * transform.right;
-        transform.rotation = Quaternion.Euler(0, -90, 0) * Quaternion.LookRotation(_SteeringDirection);    
+        var steeringAngle = Mathf.Lerp(-MaxTurningAngle, MaxTurningAngle, (_CurrentSteering / 2) + 0.5f) * Time.deltaTime;
+        _SteeringDirection = Quaternion.AngleAxis(steeringAngle, Vector3.up) * transform.right;
+        //_SteeringDirection = Quaternion.AngleAxis(_CurrentSteering * SteeringSpeed, Vector3.up) * transform.right;
+        transform.rotation = Quaternion.Euler(0, -90, 0) * Quaternion.LookRotation(_SteeringDirection);
     }
 
     private void UpdateMovement()
     {
+        UpdateSteering();
         currentVelocity = (transform.right).normalized * _Speed * Time.deltaTime;
         _RigidBody.AddForce(currentVelocity);
     }
 
-    public void ReachDestination()
+    private FinishTrigger _FinishingTrigger;
+    public void ReachDestination(FinishTrigger trigger)
     {
+        _FinishingTrigger = trigger;
         _StateCtrl.ChangeState(States.Winning);
     }
     
@@ -162,7 +171,7 @@ public class TrunkController : MonoBehaviour
 
         Health.OnValueChangeTo += OnHealthValueChangeTo;
         Health.OnValueMin += OnHealthDepleted;
-        Wheel.SteeringAmount.OnValueChanged += UpdateSteering;
+        //Wheel.SteeringAmount.OnValueChanged += UpdateSteering;
 
         _RigidBody = GetComponent<Rigidbody>();
     }
@@ -184,13 +193,26 @@ public class TrunkController : MonoBehaviour
         
     private void Coasting_Enter()
     {
+        WindShield.SetBugsActive(true);
+    }
 
+    private void Coasting_Update()
+    {
+        if (_TrackArea == null)
+        {
+            Health.value -= OutOfBoundsDamagePerSecond * Time.deltaTime;
+        }
     }
 
     private void Coasting_FixedUpdate()
     {
         //UpdateSteering();
         UpdateMovement();
+    }
+
+    private void Coasting_Exit()
+    {
+        WindShield.SetBugsActive(false);
     }
 
     private void WaitingToStart_Enter()
@@ -228,15 +250,67 @@ public class TrunkController : MonoBehaviour
         UpdateMovement();
     }
 
-    private void Crashing_Enter()
+    private float CrashingDuration = 5.0f;
+    private IEnumerator Crashing_Enter()
     {
+        MasterGameStateController.Instance.FadeOutAllExistingAudio(3.0f);
+
         Debug.Log("Player Crashed");
+
+        var lostingSfx = MasterGameStateController.Instance.LosingSfx.PlaySfx();
+        lostingSfx.transform.SetParent(transform);
+        lostingSfx.volume = 0;
+        lostingSfx.DOFade(1, MinMusicFadeInDuration);
+
+        MasterGameStateController.Instance.DisableNewAudio = true;
+
+        ScreenEffect.StartFadeEffect(Color.black, CrashingDuration);
+
+        yield return new WaitForSeconds(CrashingDuration);
+
+
+        yield return new WaitForSeconds(3.0f);
         MasterGameStateController.Instance.PlayerLost();
+
     }
 
-    private void Winning_Enter()
+    float MinMusicFadeInDuration = 3.0f;
+
+    private IEnumerator Winning_Enter()
     {
+        MasterGameStateController.Instance.FadeOutAllExistingAudio(3.0f);
+
         Debug.Log("Player Winning");
+        var winningSfx = MasterGameStateController.Instance.WinningSfx.PlaySfx();
+        winningSfx.transform.SetParent(transform);
+        winningSfx.volume = 0;
+        winningSfx.DOFade(1, MinMusicFadeInDuration);
+        MasterGameStateController.Instance.DisableNewAudio = true;
+        yield return FlyInSequence();
+
+
+        yield return new WaitForSeconds(3.0f);
         MasterGameStateController.Instance.PlayerWon();
+    }
+
+    public ScreenFlash ScreenEffect;
+    private float DurationBeforeStartWinScreenFade = 15.0f;
+    public IEnumerator FlyInSequence()
+    {
+        Vector3[] path = _FinishingTrigger.FlyPath.Select(s => s.position).ToArray();
+
+        yield return  transform.DOMove(path[0], _FinishingTrigger.StartPathDuration).WaitForCompletion();
+
+        transform.DOPath(path, _FinishingTrigger.FlyDownDuration)
+            .SetEase(_FinishingTrigger.EndSequenceEase)
+            .SetLookAt(1f, new Vector3(-1,0,0))
+            .WaitForCompletion();
+
+        yield return new WaitForSeconds(DurationBeforeStartWinScreenFade);
+        var fadeDuration = _FinishingTrigger.FlyDownDuration - DurationBeforeStartWinScreenFade;
+
+        ScreenEffect.StartFadeEffect(Color.white, fadeDuration);
+        yield return new WaitForSeconds(fadeDuration);
+
     }
 }

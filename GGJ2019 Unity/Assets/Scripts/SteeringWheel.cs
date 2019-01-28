@@ -44,12 +44,22 @@ public class SteeringWheel : InteractableCabObject
     }
 
     public override Vector3 InteractionUpdate()
-    {   
+    {
+        var currentPos = Camera.main.ScreenToWorldPoint(Input.mousePosition + new Vector3(0, 0, 1));
+        Vel = currentPos - _LastMouseWorldPosition;
+        Debug.DrawLine(_LastMouseWorldPosition, GameInfo.Instance.MouseWorldPosition);
+
+        _LastMouseWorldPosition = currentPos;
+        _Rigidbody.AddForceAtPosition(SteeringForce * Vel, _LastMouseWorldPosition);
+
+        /*
         Vel = GameInfo.Instance.MouseWorldPosition - _LastMouseWorldPosition;
         Debug.DrawLine(_LastMouseWorldPosition, GameInfo.Instance.MouseWorldPosition);
         
         _LastMouseWorldPosition = GameInfo.Instance.MouseWorldPosition;
         _Rigidbody.AddForceAtPosition(SteeringForce * Vel, _LastMouseWorldPosition);
+        */
+
 
         var currentRotation =  transform.localRotation;
 
@@ -62,6 +72,13 @@ public class SteeringWheel : InteractableCabObject
 
 
         return base.InteractionUpdate();
+    }
+
+    public float DecayRate = 1;
+
+    public void Update()
+    {
+        SteeringAmount.value = Mathf.Lerp(SteeringAmount.value, 0, Time.deltaTime * DecayRate);
     }
 
 }

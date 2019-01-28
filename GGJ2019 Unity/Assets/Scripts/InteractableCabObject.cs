@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class InteractableCabObject : MonoBehaviour {
-    
+
+    public GameObject IdleVisual;
+
     public Transform Anchor;
 
     //When the mouse hovers over the GameObject, it turns to this color (red)

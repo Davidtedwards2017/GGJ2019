@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using MonsterLove.StateMachine;
 using Utilites;
+using DG.Tweening;
 
 public class MasterGameStateController : Singleton<MasterGameStateController> {
 
@@ -25,6 +26,11 @@ public class MasterGameStateController : Singleton<MasterGameStateController> {
         None,
     }
 
+
+    public CanvasGroup TitleGroup;
+    public SoundEffectData WinningSfx;
+    public SoundEffectData LosingSfx;
+
     public List<GameObject> EasyGroups;
     public FilteredRandom<GameObject> EasyGroupRnd;
 
@@ -42,7 +48,24 @@ public class MasterGameStateController : Singleton<MasterGameStateController> {
 
     public TrunkController Player;
 
-    public void Start()
+    public List<SoundEffectData> TrackData;
+
+    public AudioSource[] trackInstances;
+    public float[] TrackVolumes;
+
+    public GameObject Track;
+    public GameObject TrackPrefab;
+
+    public bool DisableNewAudio = false;
+    public void FadeOutAllExistingAudio(float duration)
+    {
+        foreach (var audio in FindObjectsOfType<AudioSource>())
+        {
+            audio.DOFade(0, duration);
+        }
+    }
+
+    public void Awake()
     {
         EasyGroupRnd = new FilteredRandom<GameObject>(EasyGroups, 3);
         MediumGroupRnd = new FilteredRandom<GameObject>(MediumGroups, 3);
@@ -61,6 +84,28 @@ public class MasterGameStateController : Singleton<MasterGameStateController> {
 
         _StateCtrl = StateMachine<States>.Initialize(this);
         _StateCtrl.ChangeState(States.Cleanup);
+
+        InitRadioTracks();
+    }
+
+    private void InitRadioTracks()
+    {
+        trackInstances = new AudioSource[TrackData.Count + 1];
+        TrackVolumes = new float[TrackData.Count];
+
+        var i = 0;
+        foreach (var track in TrackData)
+        {
+            var instance = track.PlaySfx(true);
+            instance.transform.SetParent(transform);
+            instance.volume = 0;
+
+            trackInstances[i] = instance;
+            TrackVolumes[i] = track.Volume;
+
+            i++;
+        }
+
     }
 
     public GameObject GetNextAsteroidGroup(SpawnGroupDifficulty difficulty)
@@ -88,8 +133,14 @@ public class MasterGameStateController : Singleton<MasterGameStateController> {
 
     public void Init_Enter()
     {
-        SpawnPlayer();        
+        SpawnPlayer();
+        DisableNewAudio = false;
         _StateCtrl.ChangeState(States.WaitingToStart);
+    }
+
+    public void WaitingToStart_Enter()
+    {
+        TitleGroup.DOFade(1, 0.5f);
     }
 
     public void WaitingToStart_Update()
@@ -100,8 +151,15 @@ public class MasterGameStateController : Singleton<MasterGameStateController> {
         }
     }
 
+    public void WaitingToStart_Exit()
+    {
+        TitleGroup.DOFade(0, 0.5f);
+    }
+
     public void Playing_Enter()
     {
+        Track = Instantiate(TrackPrefab);
+
         Player.StartEngines();
     }
 
@@ -129,6 +187,11 @@ public class MasterGameStateController : Singleton<MasterGameStateController> {
     {
         Debug.Log("Despawning player");
         Destroy(Player.gameObject);
+
+        if(Track != null)
+        {
+            Destroy(Track);
+        }
 
         _StateCtrl.ChangeState(States.Init);
     }

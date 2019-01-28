@@ -9,7 +9,8 @@ public class ArmController : MonoBehaviour {
     {
         Idle,
         HoveringOver,
-        Interacting
+        Interacting,
+        HitSomething,
     }
 
     public Vector3 MouseWorldPos;
@@ -23,18 +24,11 @@ public class ArmController : MonoBehaviour {
 
     public List<SoundEffectData> IdleBanter;
 
-    public MeshRenderer Renderer;
-    Color m_OriginalColor;
-    Color m_HoveringColor = Color.red;
-    Color m_InteractingColor = Color.green;
-
     public InteractableCabObject _HoverTarget;
     public InteractableCabObject _InteractingTarget;
 
     private void Start()
     {
-        m_OriginalColor = Renderer.material.color;
-
         _StateCtrl = StateMachine<State>.Initialize(this);
         _StateCtrl.ChangeState(State.Idle);
     }
@@ -52,7 +46,10 @@ public class ArmController : MonoBehaviour {
             }
         }
     }
-
+    public void HitRock()
+    {
+        _StateCtrl.ChangeState(State.HitSomething);
+    }
 
     private void UpdateArmPosition(Vector3 position)
     {
@@ -106,7 +103,6 @@ public class ArmController : MonoBehaviour {
     {
         Debug.Log("Arm hovering");
         HoveringVisual.SetActive(true);
-        Renderer.material.color = m_HoveringColor;
     }
 
     private void HoveringOver_Update()
@@ -129,21 +125,30 @@ public class ArmController : MonoBehaviour {
     private void HoveringOver_Exit()
     {
         HoveringVisual.SetActive(false);
-        Renderer.material.color = m_OriginalColor;
     }
 
     private void Interacting_Enter()
     {
         _InteractingTarget = _HoverTarget;
-        Debug.Log("Arm interacting with "  + _InteractingTarget.gameObject.name);
 
-        _InteractingTarget.StartInteracting();
-        Renderer.material.color = m_InteractingColor;
+        if(_InteractingTarget == null)
+        {
+            _StateCtrl.ChangeState(State.HoveringOver);
+        }
+        else
+        {
+            _InteractingTarget.StartInteracting();
+        }
     }
 
     private void Interacting_Update()
     {
-        if (Input.GetMouseButtonUp(0))
+        if (_InteractingTarget == null)
+        {
+            _StateCtrl.ChangeState(State.HoveringOver);
+        }
+
+        if (_InteractingTarget == null || Input.GetMouseButtonUp(0))
         {
             _StateCtrl.ChangeState(State.HoveringOver);
         }
@@ -151,14 +156,33 @@ public class ArmController : MonoBehaviour {
 
     private void Interacting_LateUpdate()
     {
-        UpdateArmPosition(_InteractingTarget.InteractionUpdate());
-    }
+        if(_InteractingTarget != null)
+        {
+            UpdateArmPosition(_InteractingTarget.InteractionUpdate());
+        }
+    }    
 
     private void Interacting_Exit()
     {
-        _InteractingTarget.StopInteracting();
-        _InteractingTarget = null;
-        Renderer.material.color = m_OriginalColor;
+        if(_InteractingTarget != null)
+        {
+            _InteractingTarget.StopInteracting();
+        }
+    }
+
+    public float HitSomethingSpazDuration = 0.5f;
+
+    private IEnumerator HitSomething_Enter()
+    {
+        HurtVisual.SetActive(true);
+        yield return new WaitForSeconds(HitSomethingSpazDuration);
+        HurtVisual.SetActive(false);
+        _StateCtrl.ChangeState(_StateCtrl.LastState);
+    }
+
+    private void HitSomething_LateUpdate()
+    {
+        UpdateArmToMousePosition();
     }
 
 }
